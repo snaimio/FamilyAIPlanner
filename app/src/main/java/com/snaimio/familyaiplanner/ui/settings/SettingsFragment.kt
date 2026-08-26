@@ -6,9 +6,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -20,9 +23,11 @@ import com.snaimio.familyaiplanner.MainActivity
 import com.snaimio.familyaiplanner.R
 import com.snaimio.familyaiplanner.WelcomeActivity
 import com.snaimio.familyaiplanner.data.AIAssistantEngine
+import com.snaimio.familyaiplanner.data.AIProvider
 
 /**
- * SettingsFragment provides dedicated App & Account Settings and Preferences.
+ * SettingsFragment provides universal AI platform configuration (Gemini, OpenAI, Claude, Groq, DeepSeek, Ollama),
+ * dietary meal goals, smart notifications, and account management.
  */
 @Suppress("DEPRECATION")
 class SettingsFragment : Fragment() {
@@ -41,8 +46,11 @@ class SettingsFragment : Fragment() {
         val textEmail = root.findViewById<TextView>(R.id.settingsUserEmail)
         val btnSignOut = root.findViewById<Button>(R.id.btnSettingsSignOut)
 
-        val inputApiKey = root.findViewById<EditText>(R.id.inputGeminiApiKey)
-        val btnSaveApiKey = root.findViewById<Button>(R.id.btnSaveApiKey)
+        val spinnerProvider = root.findViewById<Spinner>(R.id.spinnerAiProvider)
+        val inputApiKey = root.findViewById<EditText>(R.id.inputUniversalApiKey)
+        val inputBaseUrl = root.findViewById<EditText>(R.id.inputCustomBaseUrl)
+        val inputModelName = root.findViewById<EditText>(R.id.inputCustomModelName)
+        val btnSaveAi = root.findViewById<Button>(R.id.btnSaveUniversalAi)
 
         val switchMorning = root.findViewById<SwitchMaterial>(R.id.switchMorningBriefing)
         val switchGrocery = root.findViewById<SwitchMaterial>(R.id.switchGroceryAlerts)
@@ -70,7 +78,62 @@ class SettingsFragment : Fragment() {
             requireActivity().finish()
         }
 
-        // 2. Load saved switches
+        // 2. Setup Universal AI Provider Spinner
+        val providers = AIProvider.values()
+        val providerNames = providers.map { it.displayName }
+        val spinnerAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, providerNames)
+        spinnerProvider.adapter = spinnerAdapter
+
+        val savedProviderIndex = prefs.getInt("ai_provider_index", 0)
+        spinnerProvider.setSelection(savedProviderIndex)
+
+        inputApiKey.setText(prefs.getString("ai_api_key", ""))
+        inputBaseUrl.setText(prefs.getString("ai_base_url", ""))
+        inputModelName.setText(prefs.getString("ai_model_name", ""))
+
+        spinnerProvider.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selected = providers[position]
+                if (inputBaseUrl.text.isNullOrBlank()) {
+                    inputBaseUrl.hint = selected.defaultEndpoint
+                }
+                if (inputModelName.text.isNullOrBlank()) {
+                    inputModelName.hint = selected.defaultModel
+                }
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        btnSaveAi.setOnClickListener {
+            val position = spinnerProvider.selectedItemPosition
+            val selectedProvider = providers.getOrElse(position) { AIProvider.GEMINI }
+            val key = inputApiKey.text.toString().trim()
+            val baseUrl = inputBaseUrl.text.toString().trim()
+            val modelName = inputModelName.text.toString().trim()
+
+            prefs.edit()
+                .putInt("ai_provider_index", position)
+                .putString("ai_api_key", key)
+                .putString("ai_base_url", baseUrl)
+                .putString("ai_model_name", modelName)
+                .apply()
+
+            AIAssistantEngine.configure(
+                provider = selectedProvider,
+                apiKey = if (key.isNotBlank()) key else null,
+                baseUrl = if (baseUrl.isNotBlank()) baseUrl else null,
+                modelName = if (modelName.isNotBlank()) modelName else null
+            )
+
+            val providerName = selectedProvider.displayName
+            if (key.isNotBlank()) {
+                Toast.makeText(context, "$providerName API configured & active! ✨", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "API Key cleared (using on-device engine).", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // 3. Notification switches
         switchMorning.isChecked = prefs.getBoolean("notif_morning", true)
         switchGrocery.isChecked = prefs.getBoolean("notif_grocery", true)
         switchAppointment.isChecked = prefs.getBoolean("notif_appointment", true)
@@ -83,26 +146,6 @@ class SettingsFragment : Fragment() {
         }
         switchAppointment.setOnCheckedChangeListener { _, isChecked ->
             prefs.edit().putBoolean("notif_appointment", isChecked).apply()
-        }
-
-        // 3. Gemini API Key
-        val savedApiKey = prefs.getString("gemini_api_key", "")
-        if (!savedApiKey.isNullOrBlank()) {
-            inputApiKey.setText(savedApiKey)
-            AIAssistantEngine.setApiKey(savedApiKey)
-        }
-
-        btnSaveApiKey.setOnClickListener {
-            val key = inputApiKey.text.toString().trim()
-            if (key.isNotBlank()) {
-                prefs.edit().putString("gemini_api_key", key).apply()
-                AIAssistantEngine.setApiKey(key)
-                Toast.makeText(context, "Gemini AI API Key saved! ✨", Toast.LENGTH_SHORT).show()
-            } else {
-                prefs.edit().remove("gemini_api_key").apply()
-                AIAssistantEngine.geminiApiKey = null
-                Toast.makeText(context, "API Key cleared (using on-device engine).", Toast.LENGTH_SHORT).show()
-            }
         }
 
         return root

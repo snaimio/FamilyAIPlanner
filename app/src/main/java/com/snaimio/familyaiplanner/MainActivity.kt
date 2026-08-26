@@ -72,6 +72,15 @@ class MainActivity : AppCompatActivity() {
         navigationView = findViewById(R.id.navigationView)
         bottomNavigation = findViewById(R.id.bottomNavigation)
 
+        // Load saved universal AI settings
+        val aiPrefs = getSharedPreferences("family_settings_prefs", android.content.Context.MODE_PRIVATE)
+        val providerIndex = aiPrefs.getInt("ai_provider_index", 0)
+        val provider = com.snaimio.familyaiplanner.data.AIProvider.values().getOrElse(providerIndex) { com.snaimio.familyaiplanner.data.AIProvider.GEMINI }
+        val apiKey = aiPrefs.getString("ai_api_key", null)
+        val baseUrl = aiPrefs.getString("ai_base_url", null)
+        val modelName = aiPrefs.getString("ai_model_name", null)
+        com.snaimio.familyaiplanner.data.AIAssistantEngine.configure(provider, apiKey, baseUrl, modelName)
+
         setupDrawerHeader()
         setupDrawerNavigation()
         setupBottomNavigation()
