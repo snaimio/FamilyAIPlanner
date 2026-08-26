@@ -1,7 +1,7 @@
 package com.snaimio.familyaiplanner.ui.settings
 
-import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,28 +9,23 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.chip.Chip
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.firebase.auth.FirebaseAuth
 import com.snaimio.familyaiplanner.MainActivity
 import com.snaimio.familyaiplanner.R
+import com.snaimio.familyaiplanner.WelcomeActivity
 import com.snaimio.familyaiplanner.data.AIAssistantEngine
-import com.snaimio.familyaiplanner.data.FamilyMember
-import com.snaimio.familyaiplanner.ui.adapters.MemberAdapter
 
 /**
- * SettingsFragment provides full Family Settings & Preferences:
- * - Household Family Member Profiles
- * - Dietary & Meal Planning Preferences
- * - Smart Notification Toggles
- * - Custom Google Gemini AI API Configuration
+ * SettingsFragment provides dedicated App & Account Settings and Preferences.
  */
+@Suppress("DEPRECATION")
 class SettingsFragment : Fragment() {
-
-    private lateinit var memberAdapter: MemberAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,12 +34,12 @@ class SettingsFragment : Fragment() {
     ): View? {
         val root = inflater.inflate(R.layout.fragment_settings, container, false)
         val mainActivity = activity as? MainActivity
-        val repository = mainActivity?.repository ?: return root
         val prefs = requireContext().getSharedPreferences("family_settings_prefs", Context.MODE_PRIVATE)
 
         val btnBack = root.findViewById<ImageView>(R.id.btnSettingsBack)
-        val recyclerView = root.findViewById<RecyclerView>(R.id.membersRecyclerView)
-        val btnAddMember = root.findViewById<Button>(R.id.btnAddMember)
+        val textName = root.findViewById<TextView>(R.id.settingsUserName)
+        val textEmail = root.findViewById<TextView>(R.id.settingsUserEmail)
+        val btnSignOut = root.findViewById<Button>(R.id.btnSettingsSignOut)
 
         val inputApiKey = root.findViewById<EditText>(R.id.inputGeminiApiKey)
         val btnSaveApiKey = root.findViewById<Button>(R.id.btnSaveApiKey)
@@ -54,16 +49,25 @@ class SettingsFragment : Fragment() {
         val switchAppointment = root.findViewById<SwitchMaterial>(R.id.switchAppointmentReminders)
 
         btnBack.setOnClickListener {
-            mainActivity.selectBottomNavTab(R.id.nav_home)
+            mainActivity?.selectBottomNavTab(R.id.nav_home)
         }
 
-        // 1. Members List
-        memberAdapter = MemberAdapter(repository.getFamilyMembers())
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = memberAdapter
+        // 1. User Profile
+        textName.text = mainActivity?.activeUserName ?: "Account Owner"
+        textEmail.text = mainActivity?.activeUserEmail ?: "Signed in"
 
-        btnAddMember.setOnClickListener {
-            showAddMemberDialog(repository)
+        btnSignOut.setOnClickListener {
+            FirebaseAuth.getInstance().signOut()
+            try {
+                val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
+                GoogleSignIn.getClient(requireActivity(), gso).signOut()
+            } catch (_: Exception) {}
+
+            val authPrefs = requireContext().getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+            authPrefs.edit().clear().apply()
+
+            startActivity(Intent(requireActivity(), WelcomeActivity::class.java))
+            requireActivity().finish()
         }
 
         // 2. Load saved switches
@@ -102,41 +106,5 @@ class SettingsFragment : Fragment() {
         }
 
         return root
-    }
-
-    private fun showAddMemberDialog(repository: com.snaimio.familyaiplanner.data.PlannerRepository) {
-        val context = context ?: return
-        val builder = AlertDialog.Builder(context)
-        builder.setTitle("Add Family Member")
-
-        val layout = android.widget.LinearLayout(context).apply {
-            orientation = android.widget.LinearLayout.VERTICAL
-            setPadding(50, 40, 50, 10)
-        }
-
-        val nameInput = EditText(context).apply { hint = "Name (e.g. Grandma, Oliver)" }
-        val roleInput = EditText(context).apply { hint = "Role (e.g. Spouse, Son, Daughter, Parent)" }
-
-        layout.addView(nameInput)
-        layout.addView(roleInput)
-        builder.setView(layout)
-
-        builder.setPositiveButton("Add") { _, _ ->
-            val name = nameInput.text.toString().trim()
-            val role = roleInput.text.toString().trim()
-            if (name.isNotBlank()) {
-                val newMember = FamilyMember(
-                    id = System.currentTimeMillis(),
-                    name = name,
-                    role = if (role.isNotBlank()) role else "Family Member",
-                    avatarEmoji = "👤"
-                )
-                repository.addFamilyMember(newMember)
-                memberAdapter.updateData(repository.getFamilyMembers())
-                Toast.makeText(context, "Added $name to household! 🏡", Toast.LENGTH_SHORT).show()
-            }
-        }
-        builder.setNegativeButton("Cancel", null)
-        builder.show()
     }
 }

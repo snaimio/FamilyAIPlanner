@@ -120,6 +120,10 @@ class MainActivity : AppCompatActivity() {
                     selectBottomNavTab(R.id.nav_chat)
                     true
                 }
+                R.id.drawer_members -> {
+                    navigateTo(com.snaimio.familyaiplanner.ui.members.FamilyMembersFragment())
+                    true
+                }
                 R.id.drawer_settings -> {
                     navigateTo(SettingsFragment())
                     true
