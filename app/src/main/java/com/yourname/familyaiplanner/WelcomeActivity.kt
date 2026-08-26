@@ -12,8 +12,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.gms.tasks.Task
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.UserProfileChangeRequest
 
 /**
@@ -29,14 +33,16 @@ class WelcomeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_welcome)
 
         try {
+            FirebaseApp.initializeApp(this)
             auth = FirebaseAuth.getInstance()
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
         // Auto-login if user is already signed in
-        if (auth?.currentUser != null) {
-            proceedToMain(auth?.currentUser?.displayName ?: "Sarah")
+        val currentUser: FirebaseUser? = auth?.currentUser
+        if (currentUser != null) {
+            proceedToMain(currentUser.displayName ?: "Sarah")
             return
         }
 
@@ -60,7 +66,7 @@ class WelcomeActivity : AppCompatActivity() {
 
     private fun showLoginSheet() {
         val dialog = BottomSheetDialog(this)
-        val sheetView = layoutInflater.inflate(R.layout.sheet_login, null)
+        val sheetView = layoutInflater.inflate(R.layout.sheet_login, findViewById(android.R.id.content), false)
         dialog.setContentView(sheetView)
 
         val emailInput = sheetView.findViewById<EditText>(R.id.loginEmailInput)
@@ -84,12 +90,13 @@ class WelcomeActivity : AppCompatActivity() {
             val firebaseAuth = auth
             if (firebaseAuth != null) {
                 firebaseAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this) { task ->
+                    .addOnCompleteListener(this) { task: Task<AuthResult> ->
                         progressBar.visibility = View.GONE
                         btnSubmit.isEnabled = true
                         if (task.isSuccessful) {
                             dialog.dismiss()
-                            val name = firebaseAuth.currentUser?.displayName ?: email.substringBefore("@")
+                            val user: FirebaseUser? = firebaseAuth.currentUser
+                            val name = user?.displayName ?: email.substringBefore("@")
                             proceedToMain(name)
                         } else {
                             val errorMsg = task.exception?.localizedMessage ?: "Authentication failed."
@@ -113,7 +120,7 @@ class WelcomeActivity : AppCompatActivity() {
 
     private fun showSignUpSheet() {
         val dialog = BottomSheetDialog(this)
-        val sheetView = layoutInflater.inflate(R.layout.sheet_signup, null)
+        val sheetView = layoutInflater.inflate(R.layout.sheet_signup, findViewById(android.R.id.content), false)
         dialog.setContentView(sheetView)
 
         val nameInput = sheetView.findViewById<EditText>(R.id.signupNameInput)
@@ -143,7 +150,7 @@ class WelcomeActivity : AppCompatActivity() {
             val firebaseAuth = auth
             if (firebaseAuth != null) {
                 firebaseAuth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this) { task ->
+                    .addOnCompleteListener(this) { task: Task<AuthResult> ->
                         progressBar.visibility = View.GONE
                         btnSubmit.isEnabled = true
                         if (task.isSuccessful) {

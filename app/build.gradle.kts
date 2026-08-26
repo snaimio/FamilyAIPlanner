@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -49,9 +50,10 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.cardview:cardview:1.0.0")
 
-    // Firebase Authentication
+    // Firebase Authentication & Services (Direct versioned + BoM for perfect IDE indexing)
     implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
-    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-auth-ktx:23.0.0")
+    implementation("com.google.firebase:firebase-common-ktx:21.0.0")
     implementation("com.google.android.gms:play-services-auth:21.2.0")
 
     // Lifecycle & Coroutines
