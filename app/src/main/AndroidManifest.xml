@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_welcome_calendar"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/ic_welcome_calendar"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.FamilyAIPlanner"
+        android:usesCleartextTraffic="false"
+        tools:targetApi="34">
+
+        <!-- Welcome / Onboarding Screen (Launcher) -->
+        <activity
+            android:name=".WelcomeActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Main Dashboard & Navigation Host -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:windowSoftInputMode="adjustResize" />
+
+    </application>
+
+</manifest>

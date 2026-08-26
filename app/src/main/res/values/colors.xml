@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Family AI Planner Soft Teal & Mint Palette (Exact Match to Mockup) -->
+    <color name="primaryTeal">#3D7B80</color>
+    <color name="primaryTealDark">#275357</color>
+    <color name="primaryTealLight">#5A999E</color>
+    <color name="colorSecondary">#4A8B90</color>
+
+    <!-- Backgrounds & Surfaces -->
+    <color name="bgMint">#EBF3F4</color>
+    <color name="surfaceWhite">#FFFFFF</color>
+    <color name="tileTealLight">#D6E8EA</color>
+    <color name="tileTealPressed">#C4DDE0</color>
+    <color name="tileIconBg">#4A8B90</color>
+    <color name="borderSoft">#C7DFE2</color>
+
+    <!-- Chat Bubbles -->
+    <color name="chatBubbleUser">#D6E9EB</color>
+    <color name="chatBubbleAi">#3D7B80</color>
+    <color name="chatTextUser">#1A2F31</color>
+    <color name="chatTextAi">#FFFFFF</color>
+
+    <!-- Typography -->
+    <color name="textPrimary">#1A2F31</color>
+    <color name="textSecondary">#5C7C7F</color>
+    <color name="textMuted">#88A7AA</color>
+    <color name="textWhite">#FFFFFF</color>
+
+    <!-- Accent Colors -->
+    <color name="accentActiveDate">#3D7B80</color>
+    <color name="accentSuggestion">#F0F6F7</color>
+    <color name="accentCheckmark">#3D7B80</color>
+</resources>

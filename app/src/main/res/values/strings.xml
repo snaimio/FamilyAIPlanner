@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Family AI Planner</string>
+    <string name="welcome_title">Welcome to\nFamily AI Planner</string>
+    <string name="welcome_subtitle">All-in-one smart\norganizer for your family</string>
+    <string name="btn_log_in">Log in</string>
+    <string name="btn_sign_up">Sign up</string>
+
+    <string name="title_dashboard">Family Dashboard</string>
+    <string name="greeting_sarah">Good morning, Sarah.</string>
+    <string name="tile_calendar">Calendar</string>
+    <string name="tile_tasks">Tasks</string>
+    <string name="tile_meal_planner">Meal Planner</string>
+    <string name="tile_grocery_list">Grocery List</string>
+
+    <string name="nav_home">Home</string>
+    <string name="nav_calendar">Calendar</string>
+    <string name="nav_meals">Meals</string>
+    <string name="nav_chat">Chat</string>
+    <string name="nav_settings">Settings</string>
+
+    <string name="title_calendar">Calendar</string>
+    <string name="title_meals">Meal Planner</string>
+    <string name="title_grocery">Grocery List</string>
+    <string name="title_ai_assistant">AI Assistant</string>
+    <string name="title_settings">Settings</string>
+</resources>

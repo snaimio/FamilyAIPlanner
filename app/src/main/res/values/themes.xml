@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.FamilyAIPlanner" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/primaryTeal</item>
+        <item name="colorPrimaryContainer">@color/tileTealLight</item>
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="android:statusBarColor">@color/primaryTeal</item>
+        <item name="android:navigationBarColor">@color/surfaceWhite</item>
+        <item name="android:windowBackground">@color/bgMint</item>
+    </style>
+</resources>
