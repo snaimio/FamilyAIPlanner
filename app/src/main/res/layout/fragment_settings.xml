@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_weight="1"
-            android:text="@string/title_settings"
+            android:text="Family Settings"
             android:textColor="@color/textPrimary"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -52,35 +52,228 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Section Title matching Screen 8: "Add Family Member" -->
+            <!-- 1. Family Members Section -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="14dp"
-                android:text="Add Family Member"
+                android:layout_marginBottom="12dp"
+                android:text="👨‍👩‍👧‍👦 Family Household Members"
                 android:textColor="@color/textPrimary"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <!-- Family Members List -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/membersRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false" />
 
-            <!-- Add Family Member Button -->
             <Button
                 android:id="@+id/btnAddMember"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="20dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="12dp"
                 android:background="@drawable/btn_teal_rounded"
-                android:text="➕ Add New Family Member"
+                android:text="➕ Add Family Member"
                 android:textColor="@color/textWhite"
-                android:textSize="15sp"
+                android:textSize="14sp"
                 android:textStyle="bold"
                 app:backgroundTint="@null" />
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="20dp"
+                android:background="@color/borderSoft" />
+
+            <!-- 2. Meal & Dietary Preferences Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🍽️ Meal &amp; Recipe Dietary Goals"
+                android:textColor="@color/textPrimary"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="12dp"
+                android:text="Tailor AI meal suggestions to your household diet:"
+                android:textColor="@color/textSecondary"
+                android:textSize="13sp" />
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupDiet"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:chipSpacingHorizontal="8dp">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipBalanced"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="Balanced &amp; Healthy"
+                    app:chipBackgroundColor="@color/tileTealLight"
+                    app:chipStrokeColor="@color/primaryTeal" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipQuick"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="Quick 30-Min Meals"
+                    app:chipBackgroundColor="@color/tileTealLight"
+                    app:chipStrokeColor="@color/primaryTeal" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipKidFriendly"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Kid Friendly 👶"
+                    app:chipBackgroundColor="@color/surfaceWhite"
+                    app:chipStrokeColor="@color/borderSoft" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipVegetarian"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Vegetarian 🥗"
+                    app:chipBackgroundColor="@color/surfaceWhite"
+                    app:chipStrokeColor="@color/borderSoft" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipHighProtein"
+                    style="@style/Widget.MaterialComponents.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="High Protein 💪"
+                    app:chipBackgroundColor="@color/surfaceWhite"
+                    app:chipStrokeColor="@color/borderSoft" />
+
+            </com.google.android.material.chip.ChipGroup>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:background="@color/borderSoft" />
+
+            <!-- 3. Smart Notifications Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔔 Smart Reminders &amp; Alerts"
+                android:textColor="@color/textPrimary"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchMorningBriefing"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:checked="true"
+                android:text="Morning Agenda Briefing (8:00 AM)"
+                android:textColor="@color/textPrimary"
+                android:textSize="14sp"
+                app:thumbTint="@color/primaryTeal"
+                app:trackTint="@color/tileTealLight" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchGroceryAlerts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:checked="true"
+                android:text="Live Grocery Item Sync"
+                android:textColor="@color/textPrimary"
+                android:textSize="14sp"
+                app:thumbTint="@color/primaryTeal"
+                app:trackTint="@color/tileTealLight" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchAppointmentReminders"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:checked="true"
+                android:text="Family Calendar Event Alerts"
+                android:textColor="@color/textPrimary"
+                android:textSize="14sp"
+                app:thumbTint="@color/primaryTeal"
+                app:trackTint="@color/tileTealLight" />
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:background="@color/borderSoft" />
+
+            <!-- 4. Google Gemini AI API Key Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🤖 Custom Gemini AI API Key (Optional)"
+                android:textColor="@color/textPrimary"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="10dp"
+                android:text="Enter a Google AI Studio API key for unlimited AI conversational features:"
+                android:textColor="@color/textSecondary"
+                android:textSize="13sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/inputGeminiApiKey"
+                    android:layout_width="0dp"
+                    android:layout_height="46dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/item_card_bg"
+                    android:hint="AIzaSy..."
+                    android:inputType="textPassword"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:textColor="@color/textPrimary"
+                    android:textColorHint="@color/textMuted"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/btnSaveApiKey"
+                    android:layout_width="wrap_content"
+                    android:layout_height="46dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/btn_teal_rounded"
+                    android:text="Save"
+                    android:textColor="@color/textWhite"
+                    android:textSize="13sp"
+                    app:backgroundTint="@null" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="32dp" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

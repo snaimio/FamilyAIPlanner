@@ -28,14 +28,9 @@
             android:title="AI Family Assistant" />
 
         <item
-            android:id="@+id/drawer_members"
-            android:icon="@drawable/ic_profile"
-            android:title="Family Members" />
-
-        <item
             android:id="@+id/drawer_settings"
-            android:icon="@drawable/ic_tasks"
-            android:title="Preferences" />
+            android:icon="@drawable/ic_profile"
+            android:title="Family Members &amp; Settings" />
     </group>
 
     <item android:title="Account">

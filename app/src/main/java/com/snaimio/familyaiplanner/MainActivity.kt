@@ -120,10 +120,6 @@ class MainActivity : AppCompatActivity() {
                     selectBottomNavTab(R.id.nav_chat)
                     true
                 }
-                R.id.drawer_members -> {
-                    navigateTo(SettingsFragment())
-                    true
-                }
                 R.id.drawer_settings -> {
                     navigateTo(SettingsFragment())
                     true
