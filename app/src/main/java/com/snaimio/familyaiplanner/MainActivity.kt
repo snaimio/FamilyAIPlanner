@@ -134,6 +134,8 @@ class MainActivity : AppCompatActivity() {
                         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
                         GoogleSignIn.getClient(this, gso).signOut()
                     } catch (_: Exception) {}
+                    val prefs = getSharedPreferences("auth_prefs", android.content.Context.MODE_PRIVATE)
+                    prefs.edit().clear().apply()
                     startActivity(Intent(this, WelcomeActivity::class.java))
                     finish()
                     true
