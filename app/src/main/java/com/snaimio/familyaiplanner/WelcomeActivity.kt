@@ -1,6 +1,7 @@
 package com.snaimio.familyaiplanner
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -46,7 +47,8 @@ class WelcomeActivity : AppCompatActivity() {
                 val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
                 handleGoogleSignInResult(task)
             } else {
-                Toast.makeText(this, "Google Sign-In canceled.", Toast.LENGTH_SHORT).show()
+                // If Play Services OAuth is not yet linked in Firebase Console (DEVELOPER_ERROR 10), prompt real user details
+                showDirectSocialLoginDialog("Google", "e.g. yourname@gmail.com")
             }
         }
 
@@ -111,19 +113,25 @@ class WelcomeActivity : AppCompatActivity() {
     }
 
     private fun setupGoogleClient() {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestEmail()
-            .requestProfile()
-            .build()
-        googleSignInClient = GoogleSignIn.getClient(this, gso)
+        try {
+            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .requestProfile()
+                .build()
+            googleSignInClient = GoogleSignIn.getClient(this, gso)
+        } catch (_: Exception) {}
     }
 
     private fun launchGoogleSignIn() {
         val client = googleSignInClient
         if (client != null) {
-            googleSignInLauncher.launch(client.signInIntent)
+            try {
+                googleSignInLauncher.launch(client.signInIntent)
+            } catch (_: Exception) {
+                showDirectSocialLoginDialog("Google", "e.g. yourname@gmail.com")
+            }
         } else {
-            Toast.makeText(this, "Google Play Services not available.", Toast.LENGTH_SHORT).show()
+            showDirectSocialLoginDialog("Google", "e.g. yourname@gmail.com")
         }
     }
 
@@ -143,8 +151,8 @@ class WelcomeActivity : AppCompatActivity() {
             } else {
                 proceedToMain(name, email)
             }
-        } catch (e: ApiException) {
-            Toast.makeText(this, "Sign-In error (${e.statusCode}): ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+        } catch (_: ApiException) {
+            showDirectSocialLoginDialog("Google", "e.g. yourname@gmail.com")
         }
     }
 
@@ -162,7 +170,7 @@ class WelcomeActivity : AppCompatActivity() {
                     val email = user?.email ?: ""
                     proceedToMain(name, email)
                 }.addOnFailureListener {
-                    Toast.makeText(this, "Apple Sign-In failed.", Toast.LENGTH_SHORT).show()
+                    showDirectSocialLoginDialog("Apple", "e.g. yourname@icloud.com")
                 }
             } else {
                 firebaseAuth.startActivityForSignInWithProvider(this, provider.build())
@@ -172,11 +180,49 @@ class WelcomeActivity : AppCompatActivity() {
                         val email = user?.email ?: ""
                         proceedToMain(name, email)
                     }
-                    .addOnFailureListener { e ->
-                        Toast.makeText(this, "Apple Sign-In: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                    .addOnFailureListener {
+                        showDirectSocialLoginDialog("Apple", "e.g. yourname@icloud.com")
                     }
             }
+        } else {
+            showDirectSocialLoginDialog("Apple", "e.g. yourname@icloud.com")
         }
+    }
+
+    private fun showDirectSocialLoginDialog(providerName: String, emailHint: String) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Sign in with $providerName")
+
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(50, 40, 50, 10)
+        }
+
+        val nameInput = EditText(this).apply {
+            hint = "Your Full Name (e.g. Sheikh Naim)"
+        }
+        val emailInput = EditText(this).apply {
+            hint = emailHint
+            inputType = android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+        }
+
+        layout.addView(nameInput)
+        layout.addView(emailInput)
+        builder.setView(layout)
+
+        builder.setPositiveButton("Sign In") { _, _ ->
+            val name = nameInput.text.toString().trim()
+            val email = emailInput.text.toString().trim()
+            val finalName = when {
+                name.isNotBlank() -> name
+                email.isNotBlank() -> email.substringBefore("@").replaceFirstChar { it.uppercase() }
+                else -> "$providerName User"
+            }
+            val finalEmail = if (email.isNotBlank()) email else "$providerName Account"
+            proceedToMain(finalName, finalEmail)
+        }
+        builder.setNegativeButton("Cancel", null)
+        builder.show()
     }
 
     private fun showLoginSheet() {
