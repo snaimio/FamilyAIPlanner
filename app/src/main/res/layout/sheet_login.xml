@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/card_rounded_white"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Welcome Back"
+        android:textColor="@color/textPrimary"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Sign in with your family account email"
+        android:textColor="@color/textSecondary"
+        android:textSize="13sp" />
+
+    <!-- Email Field -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/loginEmailLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:boxStrokeColor="@color/primaryTeal"
+        app:hintTextColor="@color/primaryTeal"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/loginEmailInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email address"
+            android:inputType="textEmailAddress"
+            android:textColor="@color/textPrimary" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Password Field -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/loginPasswordLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        app:boxStrokeColor="@color/primaryTeal"
+        app:hintTextColor="@color/primaryTeal"
+        app:passwordToggleEnabled="true"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/loginPasswordInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:textColor="@color/textPrimary" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Sign In Button -->
+    <Button
+        android:id="@+id/btnSubmitLogin"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/btn_teal_rounded"
+        android:text="Sign In"
+        android:textColor="@color/textWhite"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:backgroundTint="@null" />
+
+    <!-- Guest / Demo Mode Button -->
+    <Button
+        android:id="@+id/btnDemoLogin"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="10dp"
+        android:backgroundTint="@color/tileTealLight"
+        android:text="⚡ Fast Demo Sign In (Sarah)"
+        android:textColor="@color/primaryTeal"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:cornerRadius="24dp" />
+
+    <!-- Loading Indicator -->
+    <ProgressBar
+        android:id="@+id/loginProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="12dp"
+        android:visibility="gone" />
+
+</LinearLayout>

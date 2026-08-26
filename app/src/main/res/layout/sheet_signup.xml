@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/card_rounded_white"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create Family Account"
+        android:textColor="@color/textPrimary"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Set up your shared family organizer"
+        android:textColor="@color/textSecondary"
+        android:textSize="13sp" />
+
+    <!-- Name Field -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/signupNameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:boxStrokeColor="@color/primaryTeal"
+        app:hintTextColor="@color/primaryTeal"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/signupNameInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Your Name (e.g. Sarah)"
+            android:inputType="textPersonName"
+            android:textColor="@color/textPrimary" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Email Field -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/signupEmailLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        app:boxStrokeColor="@color/primaryTeal"
+        app:hintTextColor="@color/primaryTeal"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/signupEmailInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email address"
+            android:inputType="textEmailAddress"
+            android:textColor="@color/textPrimary" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Password Field -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/signupPasswordLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        app:boxStrokeColor="@color/primaryTeal"
+        app:hintTextColor="@color/primaryTeal"
+        app:passwordToggleEnabled="true"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/signupPasswordInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Password (min 6 characters)"
+            android:inputType="textPassword"
+            android:textColor="@color/textPrimary" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Sign Up Button -->
+    <Button
+        android:id="@+id/btnSubmitSignup"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/btn_teal_rounded"
+        android:text="Create Account"
+        android:textColor="@color/textWhite"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:backgroundTint="@null" />
+
+    <!-- Loading Indicator -->
+    <ProgressBar
+        android:id="@+id/signupProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="12dp"
+        android:visibility="gone" />
+
+</LinearLayout>
