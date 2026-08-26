@@ -99,6 +99,7 @@ class WelcomeActivity : AppCompatActivity() {
         val btnSignUp = findViewById<TextView>(R.id.btnSignUp)
         val btnGoogleSignIn = findViewById<LinearLayout>(R.id.btnGoogleSignIn)
         val btnAppleSignIn = findViewById<LinearLayout>(R.id.btnAppleSignIn)
+        val btnGuestAccess = findViewById<TextView>(R.id.btnGuestAccess)
 
         btnLogin.setOnClickListener {
             showLoginSheet()
@@ -106,6 +107,10 @@ class WelcomeActivity : AppCompatActivity() {
 
         btnSignUp.setOnClickListener {
             showSignUpSheet()
+        }
+
+        btnGuestAccess.setOnClickListener {
+            proceedToMain("Guest User", "guest@family.local")
         }
 
         // 1-TAP Google Sign In

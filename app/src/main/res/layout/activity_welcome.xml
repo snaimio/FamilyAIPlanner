@@ -139,12 +139,27 @@
             android:textStyle="bold" />
     </LinearLayout>
 
+    <!-- Continue as Guest Button -->
+    <TextView
+        android:id="@+id/btnGuestAccess"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:padding="6dp"
+        android:text="🚀 Access as Guest"
+        android:textColor="@color/textPrimary"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/btnSignUp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <!-- Sign up with Email Link -->
     <TextView
         android:id="@+id/btnSignUp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="36dp"
+        android:layout_marginBottom="30dp"
         android:padding="8dp"
         android:text="Don't have an account? Sign up with Email"
         android:textColor="@color/primaryTeal"
