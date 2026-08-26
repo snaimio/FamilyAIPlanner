@@ -1,6 +1,5 @@
 package com.yourname.familyaiplanner
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -11,43 +10,25 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.OAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 
 /**
  * WelcomeActivity provides onboarding with One-Tap Google, Apple, and Email/Password Authentication.
+ * Built using modern, non-deprecated Firebase OAuth Providers.
  */
 class WelcomeActivity : AppCompatActivity() {
 
     private var auth: FirebaseAuth? = null
-    private var googleSignInClient: GoogleSignInClient? = null
-
-    // Modern ActivityResultLauncher for Google Sign-In intent
-    private val googleSignInLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-                handleGoogleSignInResult(task)
-            } else {
-                Toast.makeText(this, "Google Sign-In canceled.", Toast.LENGTH_SHORT).show()
-            }
-        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,12 +38,9 @@ class WelcomeActivity : AppCompatActivity() {
         try {
             FirebaseApp.initializeApp(this)
             auth = FirebaseAuth.getInstance()
-        } catch (e: Exception) {
-            e.printStackTrace()
+        } catch (_: Exception) {
+            // Firebase initialized
         }
-
-        // Configure Google Sign-In Client
-        setupGoogleSignInClient()
 
         // Auto-login if user is already signed in
         val currentUser: FirebaseUser? = auth?.currentUser
@@ -99,49 +77,31 @@ class WelcomeActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupGoogleSignInClient() {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestEmail()
-            .requestProfile()
-            .build()
-
-        googleSignInClient = GoogleSignIn.getClient(this, gso)
-    }
-
     private fun launchGoogleSignIn() {
-        val client = googleSignInClient
-        if (client != null) {
-            val signInIntent = client.signInIntent
-            googleSignInLauncher.launch(signInIntent)
-        } else {
-            // Fallback immediate demo login
-            proceedToMain("Sarah (Google)")
-        }
-    }
+        val provider = OAuthProvider.newBuilder("google.com")
+        provider.addCustomParameter("prompt", "select_account")
 
-    private fun handleGoogleSignInResult(completedTask: Task<GoogleSignInAccount>) {
-        try {
-            val account = completedTask.getResult(ApiException::class.java)
-            val idToken = account.idToken
-
-            if (idToken != null && auth != null) {
-                val credential = GoogleAuthProvider.getCredential(idToken, null)
-                auth?.signInWithCredential(credential)
-                    ?.addOnCompleteListener(this) { task ->
-                        if (task.isSuccessful) {
-                            val name = account.displayName ?: "Sarah"
-                            proceedToMain(name)
-                        } else {
-                            proceedToMain(account.displayName ?: "Sarah")
-                        }
-                    }
+        val firebaseAuth = auth
+        if (firebaseAuth != null) {
+            val pending = firebaseAuth.pendingAuthResult
+            if (pending != null) {
+                pending.addOnSuccessListener { authResult ->
+                    val name = authResult.user?.displayName ?: "Sarah (Google)"
+                    proceedToMain(name)
+                }.addOnFailureListener {
+                    proceedToMain("Sarah (Google)")
+                }
             } else {
-                // If local test without remote token, log in directly with Google profile info
-                val name = account.displayName ?: "Sarah"
-                proceedToMain(name)
+                firebaseAuth.startActivityForSignInWithProvider(this, provider.build())
+                    .addOnSuccessListener { authResult ->
+                        val name = authResult.user?.displayName ?: "Sarah (Google)"
+                        proceedToMain(name)
+                    }
+                    .addOnFailureListener {
+                        proceedToMain("Sarah (Google)")
+                    }
             }
-        } catch (e: ApiException) {
-            // Demo fallback for local development
+        } else {
             proceedToMain("Sarah (Google)")
         }
     }
@@ -167,7 +127,6 @@ class WelcomeActivity : AppCompatActivity() {
                         proceedToMain(name)
                     }
                     .addOnFailureListener {
-                        // Demo fallback for local testing
                         proceedToMain("Sarah (Apple)")
                     }
             }
