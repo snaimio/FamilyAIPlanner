@@ -11,6 +11,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.concurrent.TimeUnit
 
 enum class AIProvider(val displayName: String, val defaultModel: String, val defaultEndpoint: String) {
+    FREE_BUILTIN("✨ Free Built-in Cloud AI (No key required)", "openai", "https://text.pollinations.ai/"),
     GEMINI("Google Gemini", "gemini-1.5-flash", "https://generativelanguage.googleapis.com/v1beta/models"),
     OPENAI("OpenAI (ChatGPT / GPT-4o)", "gpt-4o-mini", "https://api.openai.com/v1/chat/completions"),
     ANTHROPIC("Anthropic Claude", "claude-3-5-haiku-20241022", "https://api.anthropic.com/v1/messages"),
@@ -18,21 +19,22 @@ enum class AIProvider(val displayName: String, val defaultModel: String, val def
 }
 
 /**
- * AIAssistantEngine provides universal multi-provider AI support:
- * - Google Gemini, OpenAI, Claude, Groq, DeepSeek, Ollama, OpenRouter, and custom endpoints
- * - Real-time conversational AI with family calendar, meal, and grocery action parsing
- * - Automatic on-device heuristic fallback
+ * AIAssistantEngine provides universal multi-provider AI support with built-in Free Cloud AI:
+ * - Built-in Free Cloud AI available out of the box for all users (no API key required)
+ * - Custom platform support: Google Gemini, OpenAI, Claude, Groq, DeepSeek, Ollama, and custom endpoints
+ * - Automatic Family Intent Parsing (Calendar scheduling, Grocery additions, Meal recommendations)
+ * - Automatic on-device heuristic fallback when offline
  */
 object AIAssistantEngine {
 
-    var activeProvider: AIProvider = AIProvider.GEMINI
+    var activeProvider: AIProvider = AIProvider.FREE_BUILTIN
     var customApiKey: String? = null
     var customBaseUrl: String? = null
     var customModelName: String? = null
 
     private val httpClient = OkHttpClient.Builder()
-        .connectTimeout(15, TimeUnit.SECONDS)
-        .readTimeout(25, TimeUnit.SECONDS)
+        .connectTimeout(12, TimeUnit.SECONDS)
+        .readTimeout(20, TimeUnit.SECONDS)
         .build()
 
     private val gson = Gson()
@@ -51,7 +53,7 @@ object AIAssistantEngine {
     }
 
     /**
-     * Async conversational inference supporting any AI platform.
+     * Async conversational inference with free built-in cloud AI and custom API fallback.
      */
     suspend fun generateResponseAsync(
         prompt: String,
@@ -60,10 +62,6 @@ object AIAssistantEngine {
         val (localReply, action) = generateLocalResponse(prompt, repository)
         val apiKey = customApiKey
 
-        if (apiKey.isNullOrBlank()) {
-            return@withContext Pair(localReply, action)
-        }
-
         val systemPrompt = """
             You are the Family AI Planner assistant for ${repository.userName}'s family.
             Provide a warm, concise, and helpful answer in 1 to 3 sentences.
@@ -71,24 +69,67 @@ object AIAssistantEngine {
         """.trimIndent()
 
         try {
-            val remoteResponse: String? = when (activeProvider) {
-                AIProvider.GEMINI -> callGeminiApi(apiKey, systemPrompt)
-                AIProvider.OPENAI, AIProvider.CUSTOM -> callOpenAiCompatibleApi(apiKey, systemPrompt)
-                AIProvider.ANTHROPIC -> callAnthropicApi(apiKey, systemPrompt)
+            val remoteResponse: String? = when {
+                // 1. If user configured a custom key
+                !apiKey.isNullOrBlank() -> {
+                    when (activeProvider) {
+                        AIProvider.GEMINI -> callGeminiApi(apiKey, systemPrompt)
+                        AIProvider.OPENAI, AIProvider.CUSTOM -> callOpenAiCompatibleApi(apiKey, systemPrompt)
+                        AIProvider.ANTHROPIC -> callAnthropicApi(apiKey, systemPrompt)
+                        AIProvider.FREE_BUILTIN -> callFreeBuiltinAiApi(systemPrompt)
+                    }
+                }
+                // 2. Default: Use built-in Free Cloud AI API
+                else -> {
+                    callFreeBuiltinAiApi(systemPrompt)
+                }
             }
 
             if (!remoteResponse.isNullOrBlank()) {
                 return@withContext Pair(remoteResponse.trim(), action)
             }
         } catch (_: Exception) {
-            // Fallback gracefully to on-device engine
+            // Graceful fallback to on-device engine
         }
 
         return@withContext Pair(localReply, action)
     }
 
+    /**
+     * Free Built-In Cloud AI API - Zero API key required, live LLM generation for all users.
+     */
+    private fun callFreeBuiltinAiApi(promptText: String): String? {
+        val url = "https://text.pollinations.ai/"
+
+        val requestJson = """
+            {
+              "messages": [
+                {"role": "system", "content": "You are Family AI Planner assistant. Be warm, smart, and concise in 1-3 sentences."},
+                {"role": "user", "content": ${gson.toJson(promptText)}}
+              ],
+              "model": "openai",
+              "jsonMode": false
+            }
+        """.trimIndent()
+
+        val request = Request.Builder()
+            .url(url)
+            .post(requestJson.toRequestBody(jsonMediaType))
+            .build()
+
+        httpClient.newCall(request).execute().use { response ->
+            if (response.isSuccessful) {
+                val body = response.body?.string()?.trim()
+                if (!body.isNullOrBlank()) {
+                    return body
+                }
+            }
+        }
+        return null
+    }
+
     private fun callGeminiApi(apiKey: String, promptText: String): String? {
-        val model = if (!customModelName.isNullOrBlank()) customModelName!! else AIProvider.GEMINI.defaultModel
+        val model = if (!customModelName.isNullOrBlank()) customModelName!! else "gemini-1.5-flash"
         val url = "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey"
 
         val requestJson = """
@@ -122,8 +163,8 @@ object AIAssistantEngine {
     private fun callOpenAiCompatibleApi(apiKey: String, promptText: String): String? {
         val endpoint = when {
             !customBaseUrl.isNullOrBlank() -> customBaseUrl!!
-            activeProvider == AIProvider.OPENAI -> AIProvider.OPENAI.defaultEndpoint
-            else -> AIProvider.CUSTOM.defaultEndpoint
+            activeProvider == AIProvider.OPENAI -> "https://api.openai.com/v1/chat/completions"
+            else -> "https://api.openai.com/v1/chat/completions"
         }
         val model = if (!customModelName.isNullOrBlank()) customModelName!! else "gpt-4o-mini"
 
@@ -158,8 +199,8 @@ object AIAssistantEngine {
     }
 
     private fun callAnthropicApi(apiKey: String, promptText: String): String? {
-        val endpoint = if (!customBaseUrl.isNullOrBlank()) customBaseUrl!! else AIProvider.ANTHROPIC.defaultEndpoint
-        val model = if (!customModelName.isNullOrBlank()) customModelName!! else AIProvider.ANTHROPIC.defaultModel
+        val endpoint = if (!customBaseUrl.isNullOrBlank()) customBaseUrl!! else "https://api.anthropic.com/v1/messages"
+        val model = if (!customModelName.isNullOrBlank()) customModelName!! else "claude-3-5-haiku-20241022"
 
         val requestJson = """
             {

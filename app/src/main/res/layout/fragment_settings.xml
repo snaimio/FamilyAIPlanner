@@ -151,12 +151,25 @@
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp" />
 
+                <!-- Free AI Status Badge -->
+                <TextView
+                    android:id="@+id/textAiStatusBadge"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/badge_teal_light"
+                    android:padding="10dp"
+                    android:text="🟢 Free Live Cloud AI Active (No API key needed!)"
+                    android:textColor="@color/primaryTeal"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
                 <!-- API Key -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
-                    android:text="Custom API Key"
+                    android:text="Custom API Key (Optional)"
                     android:textColor="@color/textPrimary"
                     android:textSize="13sp"
                     android:textStyle="bold" />

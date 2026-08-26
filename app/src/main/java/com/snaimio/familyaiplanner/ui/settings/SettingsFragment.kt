@@ -26,7 +26,7 @@ import com.snaimio.familyaiplanner.data.AIAssistantEngine
 import com.snaimio.familyaiplanner.data.AIProvider
 
 /**
- * SettingsFragment provides universal AI platform configuration (Gemini, OpenAI, Claude, Groq, DeepSeek, Ollama),
+ * SettingsFragment provides universal AI platform configuration (Free Cloud AI, Gemini, OpenAI, Claude, Custom),
  * dietary meal goals, smart notifications, and account management.
  */
 @Suppress("DEPRECATION")
@@ -47,6 +47,7 @@ class SettingsFragment : Fragment() {
         val btnSignOut = root.findViewById<Button>(R.id.btnSettingsSignOut)
 
         val spinnerProvider = root.findViewById<Spinner>(R.id.spinnerAiProvider)
+        val textAiBadge = root.findViewById<TextView>(R.id.textAiStatusBadge)
         val inputApiKey = root.findViewById<EditText>(R.id.inputUniversalApiKey)
         val inputBaseUrl = root.findViewById<EditText>(R.id.inputCustomBaseUrl)
         val inputModelName = root.findViewById<EditText>(R.id.inputCustomModelName)
@@ -87,9 +88,19 @@ class SettingsFragment : Fragment() {
         val savedProviderIndex = prefs.getInt("ai_provider_index", 0)
         spinnerProvider.setSelection(savedProviderIndex)
 
-        inputApiKey.setText(prefs.getString("ai_api_key", ""))
+        val savedKey = prefs.getString("ai_api_key", "") ?: ""
+        inputApiKey.setText(savedKey)
         inputBaseUrl.setText(prefs.getString("ai_base_url", ""))
         inputModelName.setText(prefs.getString("ai_model_name", ""))
+
+        fun updateBadge(key: String, provider: AIProvider) {
+            if (key.isNotBlank()) {
+                textAiBadge.text = "⚡ Custom ${provider.displayName} Active"
+            } else {
+                textAiBadge.text = "🟢 Free Live Cloud AI Active (No API key required!)"
+            }
+        }
+        updateBadge(savedKey, providers.getOrElse(savedProviderIndex) { AIProvider.FREE_BUILTIN })
 
         spinnerProvider.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -106,7 +117,7 @@ class SettingsFragment : Fragment() {
 
         btnSaveAi.setOnClickListener {
             val position = spinnerProvider.selectedItemPosition
-            val selectedProvider = providers.getOrElse(position) { AIProvider.GEMINI }
+            val selectedProvider = providers.getOrElse(position) { AIProvider.FREE_BUILTIN }
             val key = inputApiKey.text.toString().trim()
             val baseUrl = inputBaseUrl.text.toString().trim()
             val modelName = inputModelName.text.toString().trim()
@@ -125,11 +136,12 @@ class SettingsFragment : Fragment() {
                 modelName = if (modelName.isNotBlank()) modelName else null
             )
 
-            val providerName = selectedProvider.displayName
+            updateBadge(key, selectedProvider)
+
             if (key.isNotBlank()) {
-                Toast.makeText(context, "$providerName API configured & active! ✨", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "${selectedProvider.displayName} configured & active! ✨", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(context, "API Key cleared (using on-device engine).", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Free Live Cloud AI is active! 🚀", Toast.LENGTH_SHORT).show()
             }
         }
 
