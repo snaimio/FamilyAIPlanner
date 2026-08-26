@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.yourname.familyaiplanner"
+    namespace = "com.snaimio.familyaiplanner"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.yourname.familyaiplanner"
+        applicationId = "com.snaimio.familyaiplanner"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

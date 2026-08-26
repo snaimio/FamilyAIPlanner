@@ -53,7 +53,7 @@
             android:padding="16dp">
 
             <!-- Month Calendar Grid Custom View -->
-            <com.yourname.familyaiplanner.ui.views.CalendarMonthView
+            <com.snaimio.familyaiplanner.ui.views.CalendarMonthView
                 android:id="@+id/monthCalendarView"
                 android:layout_width="match_parent"
                 android:layout_height="320dp"
