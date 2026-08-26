@@ -82,7 +82,7 @@
         android:layout_height="48dp"
         android:layout_marginTop="10dp"
         android:backgroundTint="@color/tileTealLight"
-        android:text="⚡ Fast Demo Sign In (Sarah)"
+        android:text="⚡ Quick Guest Sign In"
         android:textColor="@color/primaryTeal"
         android:textSize="14sp"
         android:textStyle="bold"

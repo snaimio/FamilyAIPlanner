@@ -14,7 +14,7 @@ import com.snaimio.familyaiplanner.ui.grocery.GroceryListFragment
 import com.snaimio.familyaiplanner.ui.settings.SettingsFragment
 
 /**
- * DashboardFragment presents Screen 2 of the design mockup with interactive hamburger drawer.
+ * DashboardFragment presents the home dashboard with dynamic user greeting and interactive drawer.
  */
 class DashboardFragment : Fragment() {
 
@@ -26,10 +26,10 @@ class DashboardFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_dashboard, container, false)
         val mainActivity = activity as? MainActivity
 
-        // Dynamic Greeting with user's name
+        // Dynamic Greeting with real user's name
         val greetingText = root.findViewById<TextView>(R.id.greetingText)
-        val userName = mainActivity?.activeUserName ?: "Sarah"
-        greetingText.text = "Good morning, $userName."
+        val userName = mainActivity?.activeUserName ?: "Family"
+        greetingText.text = getString(R.string.greeting_user, userName)
 
         // Functional Hamburger Button opening side Navigation Drawer
         root.findViewById<ImageView>(R.id.btnMenu).setOnClickListener {

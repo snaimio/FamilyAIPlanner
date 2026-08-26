@@ -2,7 +2,6 @@ package com.snaimio.familyaiplanner
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +13,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.snaimio.familyaiplanner.data.PlannerRepository
 import com.snaimio.familyaiplanner.ui.calendar.CalendarFragment
 import com.snaimio.familyaiplanner.ui.chat.AIAssistantFragment
@@ -24,7 +24,8 @@ import com.snaimio.familyaiplanner.ui.settings.SettingsFragment
 
 /**
  * MainActivity acts as the host for Family AI Planner navigation,
- * managing the DrawerLayout (hamburger menu) and BottomNavigationView.
+ * managing the DrawerLayout (hamburger menu) and BottomNavigationView
+ * with real authenticated user profile data.
  */
 class MainActivity : AppCompatActivity() {
 
@@ -33,23 +34,29 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navigationView: NavigationView
     private lateinit var bottomNavigation: BottomNavigationView
 
-    var activeUserName: String = "Sarah"
+    var activeUserName: String = "User"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        repository = PlannerRepository(this)
+        val currentUser: FirebaseUser? = FirebaseAuth.getInstance().currentUser
+        val passedName = intent.getStringExtra("USER_NAME")
+
+        activeUserName = when {
+            !passedName.isNullOrBlank() -> passedName
+            !currentUser?.displayName.isNullOrBlank() -> currentUser!!.displayName!!
+            !currentUser?.email.isNullOrBlank() -> currentUser!!.email!!.substringBefore("@").replaceFirstChar { it.uppercase() }
+            else -> "Family Admin"
+        }
+
+        repository = PlannerRepository(this, activeUserName)
         drawerLayout = findViewById(R.id.drawerLayout)
         navigationView = findViewById(R.id.navigationView)
         bottomNavigation = findViewById(R.id.bottomNavigation)
 
-        activeUserName = intent.getStringExtra("USER_NAME")
-            ?: FirebaseAuth.getInstance().currentUser?.displayName
-            ?: "Sarah"
-
-        setupDrawerHeader()
+        setupDrawerHeader(currentUser)
         setupDrawerNavigation()
         setupBottomNavigation()
 
@@ -64,14 +71,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupDrawerHeader() {
+    private fun setupDrawerHeader(currentUser: FirebaseUser?) {
         val headerView = navigationView.getHeaderView(0)
         val nameText = headerView.findViewById<TextView>(R.id.drawerUserName)
         val emailText = headerView.findViewById<TextView>(R.id.drawerUserEmail)
 
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        nameText.text = currentUser?.displayName ?: activeUserName
-        emailText.text = currentUser?.email ?: "${activeUserName.lowercase()}.family@gmail.com"
+        nameText.text = activeUserName
+        emailText.text = currentUser?.email ?: "${activeUserName.lowercase().replace(" ", "")}@family.com"
     }
 
     private fun setupDrawerNavigation() {

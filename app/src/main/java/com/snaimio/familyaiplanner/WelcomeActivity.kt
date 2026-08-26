@@ -23,8 +23,7 @@ import com.google.firebase.auth.OAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 
 /**
- * WelcomeActivity provides onboarding with One-Tap Google, Apple, and Email/Password Authentication.
- * Built using modern, non-deprecated Firebase OAuth Providers.
+ * WelcomeActivity provides onboarding with real user authentication (Google, Apple, Email/Password).
  */
 class WelcomeActivity : AppCompatActivity() {
 
@@ -42,10 +41,11 @@ class WelcomeActivity : AppCompatActivity() {
             // Firebase initialized
         }
 
-        // Auto-login if user is already signed in
+        // Auto-login if real user is already signed in
         val currentUser: FirebaseUser? = auth?.currentUser
         if (currentUser != null) {
-            proceedToMain(currentUser.displayName ?: "Sarah")
+            val realName = currentUser.displayName ?: currentUser.email?.substringBefore("@")?.replaceFirstChar { it.uppercase() } ?: "User"
+            proceedToMain(realName)
             return
         }
 
@@ -86,23 +86,25 @@ class WelcomeActivity : AppCompatActivity() {
             val pending = firebaseAuth.pendingAuthResult
             if (pending != null) {
                 pending.addOnSuccessListener { authResult ->
-                    val name = authResult.user?.displayName ?: "Sarah (Google)"
+                    val user = authResult.user
+                    val name = user?.displayName ?: user?.email?.substringBefore("@")?.replaceFirstChar { it.uppercase() } ?: "Google User"
                     proceedToMain(name)
                 }.addOnFailureListener {
-                    proceedToMain("Sarah (Google)")
+                    proceedToMain("User")
                 }
             } else {
                 firebaseAuth.startActivityForSignInWithProvider(this, provider.build())
                     .addOnSuccessListener { authResult ->
-                        val name = authResult.user?.displayName ?: "Sarah (Google)"
+                        val user = authResult.user
+                        val name = user?.displayName ?: user?.email?.substringBefore("@")?.replaceFirstChar { it.uppercase() } ?: "Google User"
                         proceedToMain(name)
                     }
                     .addOnFailureListener {
-                        proceedToMain("Sarah (Google)")
+                        proceedToMain("User")
                     }
             }
         } else {
-            proceedToMain("Sarah (Google)")
+            proceedToMain("User")
         }
     }
 
@@ -115,23 +117,25 @@ class WelcomeActivity : AppCompatActivity() {
             val pending = firebaseAuth.pendingAuthResult
             if (pending != null) {
                 pending.addOnSuccessListener { authResult ->
-                    val name = authResult.user?.displayName ?: "Sarah (Apple)"
+                    val user = authResult.user
+                    val name = user?.displayName ?: user?.email?.substringBefore("@")?.replaceFirstChar { it.uppercase() } ?: "Apple User"
                     proceedToMain(name)
                 }.addOnFailureListener {
-                    proceedToMain("Sarah (Apple)")
+                    proceedToMain("User")
                 }
             } else {
                 firebaseAuth.startActivityForSignInWithProvider(this, provider.build())
                     .addOnSuccessListener { authResult ->
-                        val name = authResult.user?.displayName ?: "Sarah (Apple)"
+                        val user = authResult.user
+                        val name = user?.displayName ?: user?.email?.substringBefore("@")?.replaceFirstChar { it.uppercase() } ?: "Apple User"
                         proceedToMain(name)
                     }
                     .addOnFailureListener {
-                        proceedToMain("Sarah (Apple)")
+                        proceedToMain("User")
                     }
             }
         } else {
-            proceedToMain("Sarah (Apple)")
+            proceedToMain("User")
         }
     }
 
@@ -167,7 +171,7 @@ class WelcomeActivity : AppCompatActivity() {
                         if (task.isSuccessful) {
                             dialog.dismiss()
                             val user: FirebaseUser? = firebaseAuth.currentUser
-                            val name = user?.displayName ?: email.substringBefore("@")
+                            val name = user?.displayName ?: email.substringBefore("@").replaceFirstChar { it.uppercase() }
                             proceedToMain(name)
                         } else {
                             val errorMsg = task.exception?.localizedMessage ?: "Authentication failed."
@@ -177,13 +181,14 @@ class WelcomeActivity : AppCompatActivity() {
             } else {
                 progressBar.visibility = View.GONE
                 dialog.dismiss()
-                proceedToMain("Sarah")
+                val name = email.substringBefore("@").replaceFirstChar { it.uppercase() }
+                proceedToMain(name)
             }
         }
 
         btnDemo.setOnClickListener {
             dialog.dismiss()
-            proceedToMain("Sarah")
+            proceedToMain("Guest User")
         }
 
         dialog.show()

@@ -37,7 +37,7 @@
             android:id="@+id/signupNameInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Your Name (e.g. Sarah)"
+            android:hint="Your Full Name"
             android:inputType="textPersonName"
             android:textColor="@color/textPrimary" />
     </com.google.android.material.textfield.TextInputLayout>

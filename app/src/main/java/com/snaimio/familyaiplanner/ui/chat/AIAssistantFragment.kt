@@ -66,7 +66,7 @@ class AIAssistantFragment : Fragment() {
         }
 
         chipEmma.setOnClickListener {
-            sendMessage("Remind me about Emma's school trip", repository)
+            sendMessage("Remind me about school trip", repository)
         }
 
         chipAdd.setOnClickListener {

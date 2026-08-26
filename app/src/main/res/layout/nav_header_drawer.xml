@@ -21,7 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:text="Sarah Jenkins"
+        android:text="Account Owner"
         android:textColor="@color/textWhite"
         android:textSize="18sp"
         android:textStyle="bold" />
@@ -31,7 +31,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
-        android:text="sarah.family@gmail.com"
+        android:text="family.organizer@gmail.com"
         android:textColor="@color/tileTealLight"
         android:textSize="13sp" />
 

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Family AI Planner</string>
     <string name="welcome_title">Welcome to\nFamily AI Planner</string>
@@ -6,7 +7,7 @@
     <string name="btn_sign_up">Sign up</string>
 
     <string name="title_dashboard">Family Dashboard</string>
-    <string name="greeting_sarah">Good morning, Sarah.</string>
+    <string name="greeting_user">Good morning, %1$s.</string>
     <string name="tile_calendar">Calendar</string>
     <string name="tile_tasks">Tasks</string>
     <string name="tile_meal_planner">Meal Planner</string>

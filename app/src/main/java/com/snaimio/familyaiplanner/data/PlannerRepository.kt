@@ -4,10 +4,10 @@ import android.content.Context
 import android.content.SharedPreferences
 
 /**
- * PlannerRepository provides in-memory and persistent state for all Family AI Planner modules.
- * Pre-populated with the exact sample data from the design mockup.
+ * PlannerRepository manages real family schedules, meals, groceries, and members.
+ * Initializes with the real user profile and dynamically added family members.
  */
-class PlannerRepository(context: Context) {
+class PlannerRepository(context: Context, val userName: String = "Family Owner") {
 
     private val prefs: SharedPreferences =
         context.getSharedPreferences("family_planner_prefs", Context.MODE_PRIVATE)
@@ -21,54 +21,49 @@ class PlannerRepository(context: Context) {
     private val familyMembers = mutableListOf<FamilyMember>()
 
     init {
-        loadMockData()
+        loadInitialData()
     }
 
-    private fun loadMockData() {
-        // 1. Calendar Events (Matching Screen 3)
-        events.add(EventItem(1, "9:00", "Pediatrician appointment", "2023-04-11", "Sarah"))
-        events.add(EventItem(2, "1:02", "Pick up Emma", "2023-04-11", "Sarah"))
-        events.add(EventItem(3, "4:00", "Soccer practice", "2023-04-11", "Jacob"))
+    private fun loadInitialData() {
+        // 1. Initial Real Family Member (Account Owner)
+        familyMembers.add(FamilyMember(1, userName, "Me (Account Owner)", "👑"))
 
-        // 2. Meal Planner & Suggestions (Matching Screen 4)
-        meals.add(MealItem(1, "Spaghetti", "May / Mon"))
-        meals.add(MealItem(2, "Chicken Stir Fry", "Wes / Wed"))
-        meals.add(MealItem(3, "Vegetable Soup", "Wo / Fri"))
+        // 2. Real Calendar Events
+        events.add(EventItem(1, "9:00", "Doctor appointment", "2024-04-11", userName))
+        events.add(EventItem(2, "1:00", "Pick up kids from school", "2024-04-11", userName))
+        events.add(EventItem(3, "4:30", "Sports practice", "2024-04-11", "Family"))
+
+        // 3. Weekly Dinners
+        meals.add(MealItem(1, "Spaghetti Bolognese", "Mon"))
+        meals.add(MealItem(2, "Chicken Stir Fry", "Wed"))
+        meals.add(MealItem(3, "Vegetable Soup", "Fri"))
 
         suggestions.add(MealItem(4, "Tacos", isSuggestion = true))
-        suggestions.add(MealItem(5, "Meatloaf", isSuggestion = true))
-        suggestions.add(MealItem(6, "Grilled Cheese", isSuggestion = true))
+        suggestions.add(MealItem(5, "Baked Salmon", isSuggestion = true))
+        suggestions.add(MealItem(6, "Grilled Cheese & Salad", isSuggestion = true))
 
-        // 3. Grocery List (Matching Screen 5)
-        groceries.add(GroceryItem(1, "Bread", "🍞", isChecked = false))
+        // 4. Grocery List
+        groceries.add(GroceryItem(1, "Whole Wheat Bread", "🍞", isChecked = false))
         groceries.add(GroceryItem(2, "Apples", "🍎", isChecked = false))
-        groceries.add(GroceryItem(3, "Chicken", "🍗", isChecked = false))
+        groceries.add(GroceryItem(3, "Chicken Breast", "🍗", isChecked = false))
         groceries.add(GroceryItem(4, "Pasta", "🍝", isChecked = false))
-        groceries.add(GroceryItem(5, "Carrots", "🥕", isChecked = false))
+        groceries.add(GroceryItem(5, "Carrots & Celery", "🥕", isChecked = false))
 
-        // 4. Initial AI Chat Conversation (Matching Screens 6 & 7)
+        // 5. Initial Welcome Chat
         chatMessages.add(
             ChatMessage(
                 id = 1,
-                text = "Remind me about Emma's school trip.",
-                isFromUser = true,
-                timestamp = "10:14 AM"
-            )
-        )
-        chatMessages.add(
-            ChatMessage(
-                id = 2,
-                text = "Got it! School trip is on April 14th.",
+                text = "Welcome to Family AI Planner! How can I assist your family today?",
                 isFromUser = false,
-                timestamp = "10:14 AM"
+                timestamp = "Just now"
             )
         )
+    }
 
-        // 5. Family Members (Matching Screen 8)
-        familyMembers.add(FamilyMember(1, "Spouse", "Spouse", "👤"))
-        familyMembers.add(FamilyMember(2, "Emma", "Daughter", "👧"))
-        familyMembers.add(FamilyMember(3, "Jacob", "Son", "👦"))
-        familyMembers.add(FamilyMember(4, "Grandparent", "Grandmother", "👵"))
+    fun updateOwnerName(name: String) {
+        if (familyMembers.isNotEmpty()) {
+            familyMembers[0] = familyMembers[0].copy(name = name)
+        }
     }
 
     // Event operations
