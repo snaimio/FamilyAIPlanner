@@ -9,6 +9,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.snaimio.familyaiplanner.MainActivity
@@ -16,9 +17,10 @@ import com.snaimio.familyaiplanner.R
 import com.snaimio.familyaiplanner.data.AIAssistantEngine
 import com.snaimio.familyaiplanner.data.ChatMessage
 import com.snaimio.familyaiplanner.ui.adapters.ChatAdapter
+import kotlinx.coroutines.launch
 
 /**
- * AIAssistantFragment presents Screens 6 & 7 of the design mockup.
+ * AIAssistantFragment presents Screens 6 & 7 of the design mockup with real-time AI API integration.
  */
 class AIAssistantFragment : Fragment() {
 
@@ -84,14 +86,14 @@ class AIAssistantFragment : Fragment() {
         chatAdapter.updateData(repository.getChatMessages())
         chatRecyclerView.smoothScrollToPosition(repository.getChatMessages().size - 1)
 
-        val (replyText, action) = AIAssistantEngine.generateResponse(text, repository)
-        action?.invoke()
+        lifecycleScope.launch {
+            val (replyText, action) = AIAssistantEngine.generateResponseAsync(text, repository)
+            action?.invoke()
 
-        view?.postDelayed({
             val aiMsg = ChatMessage(text = replyText, isFromUser = false)
             repository.addChatMessage(aiMsg)
             chatAdapter.updateData(repository.getChatMessages())
             chatRecyclerView.smoothScrollToPosition(repository.getChatMessages().size - 1)
-        }, 350)
+        }
     }
 }
