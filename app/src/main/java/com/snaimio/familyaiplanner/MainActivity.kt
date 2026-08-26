@@ -10,6 +10,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -25,8 +27,9 @@ import com.snaimio.familyaiplanner.ui.settings.SettingsFragment
 /**
  * MainActivity acts as the host for Family AI Planner navigation,
  * managing the DrawerLayout (hamburger menu) and BottomNavigationView
- * with real authenticated user profile data.
+ * with real authenticated user profile data from Google / Firebase.
  */
+@Suppress("DEPRECATION")
 class MainActivity : AppCompatActivity() {
 
     lateinit var repository: PlannerRepository
@@ -34,7 +37,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navigationView: NavigationView
     private lateinit var bottomNavigation: BottomNavigationView
 
-    var activeUserName: String = "User"
+    var activeUserName: String = "Account Owner"
+    var activeUserEmail: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,13 +46,25 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val currentUser: FirebaseUser? = FirebaseAuth.getInstance().currentUser
+        val lastGoogleAccount = GoogleSignIn.getLastSignedInAccount(this)
         val passedName = intent.getStringExtra("USER_NAME")
+        val passedEmail = intent.getStringExtra("USER_EMAIL")
 
         activeUserName = when {
-            !passedName.isNullOrBlank() -> passedName
             !currentUser?.displayName.isNullOrBlank() -> currentUser!!.displayName!!
+            !lastGoogleAccount?.displayName.isNullOrBlank() -> lastGoogleAccount!!.displayName!!
+            !passedName.isNullOrBlank() -> passedName
             !currentUser?.email.isNullOrBlank() -> currentUser!!.email!!.substringBefore("@").replaceFirstChar { it.uppercase() }
+            !lastGoogleAccount?.email.isNullOrBlank() -> lastGoogleAccount!!.email!!.substringBefore("@").replaceFirstChar { it.uppercase() }
+            !passedEmail.isNullOrBlank() -> passedEmail.substringBefore("@").replaceFirstChar { it.uppercase() }
             else -> "Family Admin"
+        }
+
+        activeUserEmail = when {
+            !currentUser?.email.isNullOrBlank() -> currentUser!!.email!!
+            !lastGoogleAccount?.email.isNullOrBlank() -> lastGoogleAccount!!.email!!
+            !passedEmail.isNullOrBlank() -> passedEmail
+            else -> "Signed in account"
         }
 
         repository = PlannerRepository(this, activeUserName)
@@ -56,7 +72,7 @@ class MainActivity : AppCompatActivity() {
         navigationView = findViewById(R.id.navigationView)
         bottomNavigation = findViewById(R.id.bottomNavigation)
 
-        setupDrawerHeader(currentUser)
+        setupDrawerHeader()
         setupDrawerNavigation()
         setupBottomNavigation()
 
@@ -71,13 +87,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupDrawerHeader(currentUser: FirebaseUser?) {
+    private fun setupDrawerHeader() {
         val headerView = navigationView.getHeaderView(0)
         val nameText = headerView.findViewById<TextView>(R.id.drawerUserName)
         val emailText = headerView.findViewById<TextView>(R.id.drawerUserEmail)
 
         nameText.text = activeUserName
-        emailText.text = currentUser?.email ?: "${activeUserName.lowercase().replace(" ", "")}@family.com"
+        emailText.text = activeUserEmail
     }
 
     private fun setupDrawerNavigation() {
@@ -114,6 +130,10 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.drawer_signout -> {
                     FirebaseAuth.getInstance().signOut()
+                    try {
+                        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
+                        GoogleSignIn.getClient(this, gso).signOut()
+                    } catch (_: Exception) {}
                     startActivity(Intent(this, WelcomeActivity::class.java))
                     finish()
                     true
